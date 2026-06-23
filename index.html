@@ -191,11 +191,25 @@
   }
   .day-head.today .dnum { background: var(--blue); color: #fff; }
   .day-col {
-    min-height: 320px; padding: 4px;
+    min-height: 320px;
     border-right: 0.5px solid var(--separator);
-    display: flex; flex-direction: column; gap: 4px;
+    display: flex; flex-direction: column;
   }
   .day-col:last-child { border-right: none; }
+  .period {
+    flex: 1; padding: 14px 4px 4px;
+    display: flex; flex-direction: column; gap: 4px;
+    position: relative;
+    min-height: 140px;
+  }
+  .period.am { border-bottom: 1px dashed var(--separator); }
+  .period::before {
+    content: attr(data-label);
+    position: absolute; top: 3px; left: 4px;
+    font-size: 9px; color: var(--text-3);
+    font-weight: 700; letter-spacing: .4px;
+    pointer-events: none;
+  }
   .event {
     border-radius: 10px; padding: 6px 8px;
     font-size: 11px; line-height: 1.25;
@@ -311,6 +325,13 @@
 
   input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; }
   select { appearance: none; -webkit-appearance: none; padding-right: 4px; }
+  .period-sel {
+    flex: 0 0 auto !important; width: 56px; min-width: 56px;
+    text-align: right; font-size: 15px !important;
+    color: var(--blue) !important; padding-left: 6px;
+    font-weight: 500;
+  }
+  .field input[type="date"] { flex: 1; }
 
   /* Tooth chart */
   .teeth {
@@ -447,6 +468,10 @@
     <div class="field">
       <label>初诊日期</label>
       <input type="date" id="f_firstVisit" />
+      <select id="f_firstVisitP" class="period-sel">
+        <option value="am">上午</option>
+        <option value="pm">下午</option>
+      </select>
     </div>
     <div class="field">
       <label>姓名</label>
@@ -497,14 +522,26 @@
     <div class="field">
       <label>一期手术</label>
       <input type="date" id="f_stage1" />
+      <select id="f_stage1P" class="period-sel">
+        <option value="am">上午</option>
+        <option value="pm">下午</option>
+      </select>
     </div>
     <div class="field">
       <label>二期手术</label>
       <input type="date" id="f_stage2" />
+      <select id="f_stage2P" class="period-sel">
+        <option value="am">上午</option>
+        <option value="pm">下午</option>
+      </select>
     </div>
     <div class="field">
       <label>修复时间</label>
       <input type="date" id="f_restore" />
+      <select id="f_restoreP" class="period-sel">
+        <option value="am">上午</option>
+        <option value="pm">下午</option>
+      </select>
     </div>
   </div>
 
@@ -633,6 +670,17 @@ function fmtShort(s) {
   if (isNaN(d)) return s;
   return `${d.getMonth()+1}/${d.getDate()}`;
 }
+function pLabel(p) { return p === 'pm' ? '下午' : (p === 'am' ? '上午' : ''); }
+function fmtDateP(s, p) {
+  if (!s) return '';
+  const label = pLabel(p);
+  return fmtDate(s) + (label ? ' ' + label : '');
+}
+function fmtShortP(s, p) {
+  if (!s) return '';
+  const label = pLabel(p);
+  return fmtShort(s) + (label ? ' ' + label : '');
+}
 function toISO(d) {
   const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${dd}`;
@@ -676,9 +724,9 @@ function renderList() {
       <div class="meta">
         ${(r.teeth&&r.teeth.length) ? `<span class="badge">${r.teeth.join(', ')}</span>` : ''}
         ${r.system ? `<span class="badge">${esc(r.system)}</span>` : ''}
-        ${r.stage1 ? `一期 ${fmtShort(r.stage1)} · ` : ''}
-        ${r.stage2 ? `二期 ${fmtShort(r.stage2)} · ` : ''}
-        ${r.restore ? `修复 ${fmtShort(r.restore)}` : ''}
+        ${r.stage1 ? `一期 ${fmtShortP(r.stage1, r.stage1P)} · ` : ''}
+        ${r.stage2 ? `二期 ${fmtShortP(r.stage2, r.stage2P)} · ` : ''}
+        ${r.restore ? `修复 ${fmtShortP(r.restore, r.restoreP)}` : ''}
       </div>
     </div>
   `).join('');
@@ -701,20 +749,21 @@ function renderCal() {
   const todayISO = toISO(new Date());
   const grid = $('weekGrid');
 
-  // collect events per day
+  // collect events per day, bucketed by AM/PM
   const eventsByDay = {};
-  for (let i = 0; i < 7; i++) eventsByDay[toISO(addDays(start, i))] = [];
+  for (let i = 0; i < 7; i++) eventsByDay[toISO(addDays(start, i))] = { am: [], pm: [] };
   const types = [
-    ['firstVisit', '初诊', 't-first'],
-    ['stage1', '一期', 't-stage1'],
-    ['stage2', '二期', 't-stage2'],
-    ['restore', '修复', 't-restore'],
+    ['firstVisit', '初诊', 't-first', 'firstVisitP'],
+    ['stage1', '一期', 't-stage1', 'stage1P'],
+    ['stage2', '二期', 't-stage2', 'stage2P'],
+    ['restore', '修复', 't-restore', 'restoreP'],
   ];
   records.forEach(r => {
-    types.forEach(([key, label, cls]) => {
+    types.forEach(([key, label, cls, pKey]) => {
       const v = r[key];
       if (v && eventsByDay[v]) {
-        eventsByDay[v].push({ id: r.id, name: r.name || '未命名', label, cls });
+        const p = r[pKey] === 'pm' ? 'pm' : 'am';
+        eventsByDay[v][p].push({ id: r.id, name: r.name || '未命名', label, cls });
       }
     });
   });
@@ -729,16 +778,18 @@ function renderCal() {
       <div class="dnum">${d.getDate()}</div>
     </div>`;
   }
+  const evHtml = (e) => `<div class="event ${e.cls}" data-id="${e.id}">
+    <div class="ev-name">${esc(e.name)}</div>
+    <div class="ev-type">${e.label}</div>
+  </div>`;
   for (let i = 0; i < 7; i++) {
     const d = addDays(start, i);
     const iso = toISO(d);
     const evs = eventsByDay[iso];
-    html += `<div class="day-col">${
-      evs.map(e => `<div class="event ${e.cls}" data-id="${e.id}">
-        <div class="ev-name">${esc(e.name)}</div>
-        <div class="ev-type">${e.label}</div>
-      </div>`).join('')
-    }</div>`;
+    html += `<div class="day-col">
+      <div class="period am" data-label="上午">${evs.am.map(evHtml).join('')}</div>
+      <div class="period pm" data-label="下午">${evs.pm.map(evHtml).join('')}</div>
+    </div>`;
   }
   grid.innerHTML = html;
   grid.querySelectorAll('.event').forEach(el => {
@@ -780,6 +831,10 @@ function openEdit(id) {
   $('f_stage1').value = r?.stage1 || '';
   $('f_stage2').value = r?.stage2 || '';
   $('f_restore').value = r?.restore || '';
+  $('f_firstVisitP').value = r?.firstVisitP || 'am';
+  $('f_stage1P').value = r?.stage1P || 'am';
+  $('f_stage2P').value = r?.stage2P || 'am';
+  $('f_restoreP').value = r?.restoreP || 'am';
   pickTeethState = (r?.teeth || []).slice();
   pickSystemState = r?.system || '';
   updateTeethVal();
@@ -816,6 +871,10 @@ function saveEdit() {
     stage1: $('f_stage1').value,
     stage2: $('f_stage2').value,
     restore: $('f_restore').value,
+    firstVisitP: $('f_firstVisitP').value,
+    stage1P: $('f_stage1P').value,
+    stage2P: $('f_stage2P').value,
+    restoreP: $('f_restoreP').value,
   };
   if (!data.name && !data.firstVisit) { alert('请至少填写姓名或初诊日期'); return; }
   if (editingId) {
@@ -836,7 +895,7 @@ function openDetail(id) {
   $('detailBody').innerHTML = `
     <div class="group-title">基本信息</div>
     <div class="group">
-      <div class="detail-row"><div class="k">初诊日期</div><div class="v">${esc(fmtDate(r.firstVisit)||'—')}</div></div>
+      <div class="detail-row"><div class="k">初诊日期</div><div class="v">${esc(fmtDateP(r.firstVisit, r.firstVisitP)||'—')}</div></div>
       <div class="detail-row"><div class="k">姓名</div><div class="v">${esc(r.name||'—')}</div></div>
       <div class="detail-row"><div class="k">性别</div><div class="v">${esc(r.gender||'—')}</div></div>
       <div class="detail-row"><div class="k">年龄</div><div class="v">${r.age ? r.age+' 岁' : '—'}</div></div>
@@ -851,9 +910,9 @@ function openDetail(id) {
     </div>
     <div class="group-title">时间安排</div>
     <div class="group">
-      <div class="detail-row"><div class="k">一期手术</div><div class="v">${esc(fmtDate(r.stage1)||'—')}</div></div>
-      <div class="detail-row"><div class="k">二期手术</div><div class="v">${esc(fmtDate(r.stage2)||'—')}</div></div>
-      <div class="detail-row"><div class="k">修复时间</div><div class="v">${esc(fmtDate(r.restore)||'—')}</div></div>
+      <div class="detail-row"><div class="k">一期手术</div><div class="v">${esc(fmtDateP(r.stage1, r.stage1P)||'—')}</div></div>
+      <div class="detail-row"><div class="k">二期手术</div><div class="v">${esc(fmtDateP(r.stage2, r.stage2P)||'—')}</div></div>
+      <div class="detail-row"><div class="k">修复时间</div><div class="v">${esc(fmtDateP(r.restore, r.restoreP)||'—')}</div></div>
     </div>
   `;
   openSheet($('detailSheet'));
