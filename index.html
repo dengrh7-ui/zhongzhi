@@ -4,109 +4,119 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="theme-color" content="#f2f2f7" />
+<meta name="theme-color" content="#eaf2ff" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" type="image/svg+xml" href="icon.svg" />
 <link rel="apple-touch-icon" href="icon.svg" />
 <title>种植记录本</title>
 <style>
   :root {
-    --bg: #f2f2f7;
-    --bg-elev: rgba(255, 255, 255, 0.72);
+    --bg: #eaf2ff;
+    --bg-elev: rgba(255, 255, 255, 0.78);
     --card: #ffffff;
-    --text: #1c1c1e;
-    --text-2: #3c3c43;
-    --text-3: rgba(60, 60, 67, 0.6);
-    --separator: rgba(60, 60, 67, 0.12);
+    --text: #0a2540;
+    --text-2: #14365e;
+    --text-3: rgba(20, 54, 94, 0.55);
+    --separator: rgba(0, 122, 255, 0.12);
     --blue: #007aff;
-    --green: #34c759;
+    --blue-soft: #e4f0ff;
     --red: #ff3b30;
-    --orange: #ff9500;
-    --purple: #af52de;
-    --teal: #5ac8fa;
-    --fill: rgba(120, 120, 128, 0.12);
-    --fill-2: rgba(120, 120, 128, 0.08);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #000000;
-      --bg-elev: rgba(28, 28, 30, 0.72);
-      --card: #1c1c1e;
-      --text: #ffffff;
-      --text-2: #ebebf5;
-      --text-3: rgba(235, 235, 245, 0.6);
-      --separator: rgba(84, 84, 88, 0.6);
-      --fill: rgba(120, 120, 128, 0.24);
-      --fill-2: rgba(120, 120, 128, 0.16);
-    }
+    --fill: rgba(0, 122, 255, 0.10);
+    --fill-2: rgba(0, 122, 255, 0.06);
+    --border: rgba(0, 122, 255, 0.06);
+    --shadow: 0 2px 12px rgba(0, 60, 140, 0.06);
+    --c-first: #5ac8fa;
+    --c-stage1: #007aff;
+    --c-stage2: #2e5fcc;
+    --c-restore: #0a2540;
+    --radius-xl: 22px;
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --radius-sm: 12px;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0;
-    background: var(--bg);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #d6e7ff 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #e7f1ff 0%, transparent 55%),
+      var(--bg);
+    background-attachment: fixed;
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-      "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, "SF Pro Text",
+      "SF Pro Display", "SF Pro", "PingFang SC", "Helvetica Neue", sans-serif;
     font-size: 17px;
     line-height: 1.4;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
   }
   body { padding-bottom: env(safe-area-inset-bottom); }
 
   .nav {
     position: sticky; top: 0; z-index: 10;
     background: var(--bg-elev);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-bottom: 0.5px solid var(--separator);
-    padding: 12px 20px 10px;
+    padding: 12px 20px 12px;
     padding-top: calc(env(safe-area-inset-top) + 12px);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
   .nav-row {
     display: flex; align-items: center; justify-content: space-between;
   }
-  .nav h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  .nav h1 {
+    margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;
+    color: var(--blue);
+  }
   .nav .btn-add {
     background: var(--blue); color: #fff; border: none;
-    width: 32px; height: 32px; border-radius: 50%;
+    width: 34px; height: 34px; border-radius: 50%;
     font-size: 22px; line-height: 1; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
     transition: transform .15s ease, opacity .15s ease;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.28);
   }
-  .nav .btn-add:active { transform: scale(0.92); opacity: .85; }
+  .nav .btn-add:active { transform: scale(0.92); opacity: .9; }
 
   .segmented {
     display: flex; background: var(--fill);
-    border-radius: 9px; padding: 2px; margin-top: 10px;
+    border-radius: 14px; padding: 3px; margin-top: 12px;
     position: relative;
   }
   .segmented button {
     flex: 1; border: none; background: transparent;
-    padding: 6px 10px; font-size: 13px; font-weight: 500;
-    color: var(--text); cursor: pointer;
-    border-radius: 7px;
+    padding: 7px 10px; font-size: 13px; font-weight: 500;
+    color: var(--text-2); cursor: pointer;
+    border-radius: 11px;
     font-family: inherit;
+    transition: color .2s ease;
   }
   .segmented button.active {
     background: var(--card);
-    box-shadow: 0 3px 8px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.04);
+    box-shadow: 0 3px 10px rgba(0, 60, 140, 0.10), 0 1px 1px rgba(0,0,0,.04);
     font-weight: 600;
+    color: var(--blue);
   }
 
   .container { max-width: 720px; margin: 0 auto; padding: 16px; }
 
   .search {
-    background: var(--fill);
-    border-radius: 10px;
-    padding: 8px 12px;
-    display: flex; align-items: center; gap: 8px;
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
     margin-bottom: 18px;
+    box-shadow: var(--shadow);
   }
-  .search svg { flex: 0 0 16px; opacity: .5; }
+  .search svg { flex: 0 0 16px; color: var(--blue); opacity: .65; }
   .search input {
     flex: 1; border: none; outline: none; background: transparent;
     font-size: 17px; color: var(--text);
+    font-family: inherit;
   }
+  .search input::placeholder { color: var(--text-3); }
 
   .empty {
     text-align: center; padding: 80px 24px; color: var(--text-3);
@@ -116,22 +126,23 @@
 
   .card {
     background: var(--card);
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     padding: 14px 16px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 0 var(--separator);
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
     cursor: pointer;
-    transition: transform .12s ease;
+    transition: transform .12s ease, box-shadow .2s ease;
+    border: 1px solid var(--border);
   }
   .card:active { transform: scale(0.985); }
   .card .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .card .name { font-size: 17px; font-weight: 600; }
-  .card .date { font-size: 13px; color: var(--text-3); }
-  .card .meta { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+  .card .date { font-size: 13px; color: var(--blue); font-weight: 500; }
+  .card .meta { font-size: 14px; color: var(--text-3); margin-top: 6px; }
   .badge {
-    display: inline-block; padding: 2px 8px; border-radius: 6px;
-    background: var(--fill); font-size: 12px; color: var(--text-2);
-    margin-right: 6px;
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    background: var(--blue-soft); font-size: 12px; color: var(--blue);
+    margin-right: 6px; font-weight: 500;
   }
 
   /* Calendar */
@@ -142,25 +153,29 @@
   .cal-head .month { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
   .cal-head .nav-btns { display: flex; gap: 8px; }
   .cal-head .nav-btns button {
-    border: none; background: var(--fill); color: var(--text);
-    width: 32px; height: 32px; border-radius: 50%;
-    cursor: pointer; font-size: 16px; line-height: 1;
+    border: none; background: var(--card); color: var(--blue);
+    width: 34px; height: 34px; border-radius: 50%;
+    cursor: pointer; font-size: 18px; line-height: 1;
     font-family: inherit;
+    box-shadow: var(--shadow);
   }
   .cal-head .nav-btns button.today {
-    width: auto; padding: 0 12px; font-size: 14px;
-    background: var(--blue); color: #fff; font-weight: 500;
+    width: auto; padding: 0 14px; font-size: 14px;
+    background: var(--blue); color: #fff; font-weight: 600;
+    border-radius: 17px;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.22);
   }
   .week-grid {
     display: grid; grid-template-columns: repeat(7, 1fr);
-    background: var(--card); border-radius: 12px; overflow: hidden;
-    box-shadow: 0 1px 0 var(--separator);
+    background: var(--card); border-radius: var(--radius-lg); overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
   }
   .day-head {
-    text-align: center; padding: 8px 2px 6px;
+    text-align: center; padding: 10px 2px 8px;
     font-size: 11px; color: var(--text-3); font-weight: 500;
     border-bottom: 0.5px solid var(--separator);
-    background: var(--fill-2);
+    background: var(--blue-soft);
   }
   .day-head .dow { text-transform: uppercase; letter-spacing: .5px; }
   .day-head .dnum {
@@ -176,17 +191,18 @@
   }
   .day-col:last-child { border-right: none; }
   .event {
-    border-radius: 6px; padding: 5px 6px;
+    border-radius: 10px; padding: 6px 8px;
     font-size: 11px; line-height: 1.25;
     cursor: pointer; color: #fff;
     overflow: hidden; word-break: break-all;
+    box-shadow: 0 2px 6px rgba(0, 60, 140, 0.10);
   }
   .event .ev-name { font-weight: 600; }
   .event .ev-type { opacity: 0.9; font-size: 10px; }
-  .event.t-first { background: var(--teal); }
-  .event.t-stage1 { background: var(--blue); }
-  .event.t-stage2 { background: var(--purple); }
-  .event.t-restore { background: var(--green); }
+  .event.t-first { background: var(--c-first); }
+  .event.t-stage1 { background: var(--c-stage1); }
+  .event.t-stage2 { background: var(--c-stage2); }
+  .event.t-restore { background: var(--c-restore); }
 
   /* Modal sheet */
   .scrim {
@@ -198,13 +214,14 @@
   .sheet {
     position: fixed; left: 0; right: 0; bottom: 0;
     background: var(--bg);
-    border-radius: 14px 14px 0 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     max-height: 92vh;
     overflow-y: auto;
     transform: translateY(100%);
-    transition: transform .3s cubic-bezier(.32,.72,0,1);
+    transition: transform .35s cubic-bezier(.32,.72,0,1);
     z-index: 60;
     padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+    box-shadow: 0 -8px 30px rgba(0, 60, 140, 0.12);
   }
   .sheet.show { transform: translateY(0); }
   .sheet .handle {
@@ -225,9 +242,11 @@
   .sheet-head button:disabled { color: var(--text-3); }
 
   .group {
-    background: var(--card); border-radius: 12px;
+    background: var(--card); border-radius: var(--radius-lg);
     margin: 10px 16px;
     overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
   }
   .field {
     display: flex; align-items: center;
@@ -266,11 +285,12 @@
     display: block; width: calc(100% - 32px);
     margin: 16px; padding: 14px;
     background: var(--card); color: var(--red);
-    border: none; border-radius: 12px;
+    border: none; border-radius: var(--radius-md);
     font-size: 17px; font-weight: 500; cursor: pointer;
     font-family: inherit;
+    box-shadow: var(--shadow);
   }
-  .btn-delete:active { background: var(--fill); }
+  .btn-delete:active { background: var(--blue-soft); }
 
   .detail-row {
     display: flex; justify-content: space-between;
@@ -297,18 +317,21 @@
   .teeth-row.lower { margin-top: 6px; }
   .tooth {
     aspect-ratio: 1 / 1.15;
-    border: 1px solid var(--separator);
+    border: 1px solid rgba(0, 122, 255, 0.18);
     background: var(--card);
-    border-radius: 6px;
+    border-radius: 10px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     font-size: 11px; font-weight: 600;
     color: var(--text-2); cursor: pointer;
     user-select: none;
-    transition: transform .08s ease;
+    transition: transform .08s ease, background .15s ease;
   }
   .tooth.gap-r { margin-right: 4px; }
-  .tooth.sel { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .tooth.sel {
+    background: var(--blue); color: #fff; border-color: var(--blue);
+    box-shadow: 0 3px 8px rgba(0, 122, 255, 0.28);
+  }
   .tooth:active { transform: scale(0.9); }
   .teeth-summary {
     padding: 8px 16px 0; font-size: 13px; color: var(--text-3);
@@ -321,32 +344,40 @@
   /* Implant system picker */
   .chips { padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
   .chip {
-    background: var(--fill); color: var(--text);
-    padding: 8px 14px; border-radius: 18px;
+    background: var(--blue-soft); color: var(--blue);
+    padding: 9px 16px; border-radius: 20px;
     font-size: 15px; cursor: pointer;
     display: inline-flex; align-items: center; gap: 6px;
     border: 1px solid transparent;
+    font-weight: 500;
+    transition: transform .1s ease;
   }
-  .chip.sel { background: var(--blue); color: #fff; }
+  .chip:active { transform: scale(0.96); }
+  .chip.sel {
+    background: var(--blue); color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.28);
+  }
   .chip .del {
-    color: var(--text-3); font-size: 13px;
+    color: rgba(0, 122, 255, 0.5); font-size: 13px;
     margin-left: 2px;
   }
-  .chip.sel .del { color: rgba(255,255,255,.7); }
+  .chip.sel .del { color: rgba(255,255,255,.85); }
   .add-row {
-    display: flex; gap: 8px; padding: 8px 16px 4px;
+    display: flex; gap: 8px; padding: 12px 16px 4px;
   }
   .add-row input {
-    flex: 1; padding: 10px 12px; border-radius: 9px;
-    border: none; background: var(--fill);
+    flex: 1; padding: 11px 14px; border-radius: var(--radius-sm);
+    border: none; background: var(--card);
     font-size: 15px; outline: none; color: var(--text);
     font-family: inherit;
+    box-shadow: var(--shadow);
   }
   .add-row button {
     background: var(--blue); color: #fff; border: none;
-    border-radius: 9px; padding: 0 16px;
-    font-size: 15px; font-weight: 500; cursor: pointer;
+    border-radius: var(--radius-sm); padding: 0 18px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
     font-family: inherit;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.22);
   }
   .add-row button:disabled { opacity: .4; }
 </style>
@@ -386,10 +417,10 @@
     </div>
     <div class="week-grid" id="weekGrid"></div>
     <div style="margin-top:14px; font-size:12px; color:var(--text-3); padding: 0 4px;">
-      <span class="badge" style="background:var(--teal);color:#fff;">初诊</span>
-      <span class="badge" style="background:var(--blue);color:#fff;">一期</span>
-      <span class="badge" style="background:var(--purple);color:#fff;">二期</span>
-      <span class="badge" style="background:var(--green);color:#fff;">修复</span>
+      <span class="badge" style="background:var(--c-first);color:#fff;">初诊</span>
+      <span class="badge" style="background:var(--c-stage1);color:#fff;">一期</span>
+      <span class="badge" style="background:var(--c-stage2);color:#fff;">二期</span>
+      <span class="badge" style="background:var(--c-restore);color:#fff;">修复</span>
     </div>
   </div>
 </div>
