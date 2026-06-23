@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#f2f2f7" />
+<title>种植记录本</title>
+<style>
+  :root {
+    --bg: #f2f2f7;
+    --bg-elev: rgba(255, 255, 255, 0.72);
+    --card: #ffffff;
+    --text: #1c1c1e;
+    --text-2: #3c3c43;
+    --text-3: rgba(60, 60, 67, 0.6);
+    --separator: rgba(60, 60, 67, 0.12);
+    --blue: #007aff;
+    --green: #34c759;
+    --red: #ff3b30;
+    --orange: #ff9500;
+    --fill: rgba(120, 120, 128, 0.12);
+    --fill-2: rgba(120, 120, 128, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --bg-elev: rgba(28, 28, 30, 0.72);
+      --card: #1c1c1e;
+      --text: #ffffff;
+      --text-2: #ebebf5;
+      --text-3: rgba(235, 235, 245, 0.6);
+      --separator: rgba(84, 84, 88, 0.6);
+      --fill: rgba(120, 120, 128, 0.24);
+      --fill-2: rgba(120, 120, 128, 0.16);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+      "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+
+  .nav {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--bg-elev);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 0.5px solid var(--separator);
+    padding: 12px 20px;
+    padding-top: calc(env(safe-area-inset-top) + 12px);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
+  .nav .btn-add {
+    background: var(--blue); color: #fff; border: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 22px; line-height: 1; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: transform .15s ease, opacity .15s ease;
+  }
+  .nav .btn-add:active { transform: scale(0.92); opacity: .85; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+  .search {
+    background: var(--fill);
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 18px;
+  }
+  .search svg { flex: 0 0 16px; opacity: .5; }
+  .search input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 17px; color: var(--text);
+  }
+
+  .empty {
+    text-align: center; padding: 80px 24px; color: var(--text-3);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h2 { font-size: 20px; color: var(--text-2); margin: 0 0 6px; font-weight: 600; }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 0 var(--separator);
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .card:active { transform: scale(0.985); }
+  .card .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .card .name { font-size: 17px; font-weight: 600; }
+  .card .date { font-size: 13px; color: var(--text-3); }
+  .card .meta { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    background: var(--fill); font-size: 12px; color: var(--text-2);
+    margin-right: 6px;
+  }
+
+  /* Modal sheet */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4);
+    opacity: 0; pointer-events: none; transition: opacity .25s ease;
+    z-index: 50;
+  }
+  .scrim.show { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    border-radius: 14px 14px 0 0;
+    max-height: 92vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.32,.72,0,1);
+    z-index: 60;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+  }
+  .sheet.show { transform: translateY(0); }
+  .sheet .handle {
+    width: 36px; height: 5px; border-radius: 3px;
+    background: var(--fill); margin: 8px auto 4px;
+  }
+  .sheet-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 16px 12px;
+  }
+  .sheet-head .title { font-size: 17px; font-weight: 600; }
+  .sheet-head button {
+    background: none; border: none; color: var(--blue);
+    font-size: 17px; cursor: pointer; padding: 6px 4px;
+  }
+  .sheet-head button.primary { font-weight: 600; }
+  .sheet-head button:disabled { color: var(--text-3); }
+
+  .group {
+    background: var(--card); border-radius: 12px;
+    margin: 10px 16px;
+    overflow: hidden;
+  }
+  .field {
+    display: flex; align-items: center;
+    padding: 11px 16px;
+    border-bottom: 0.5px solid var(--separator);
+    gap: 12px;
+  }
+  .field:last-child { border-bottom: none; }
+  .field label { color: var(--text); font-size: 15px; min-width: 96px; flex-shrink: 0; }
+  .field input, .field select, .field textarea {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 17px; color: var(--text); text-align: right;
+    font-family: inherit;
+  }
+  .field textarea { text-align: left; resize: none; min-height: 22px; padding: 0; }
+  .field.stacked { flex-direction: column; align-items: stretch; gap: 6px; }
+  .field.stacked label { font-size: 13px; color: var(--text-3); }
+  .field.stacked textarea { text-align: left; min-height: 60px; }
+
+  .group-title {
+    font-size: 13px; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin: 18px 24px 6px;
+  }
+
+  .btn-delete {
+    display: block; width: calc(100% - 32px);
+    margin: 16px; padding: 14px;
+    background: var(--card); color: var(--red);
+    border: none; border-radius: 12px;
+    font-size: 17px; font-weight: 500; cursor: pointer;
+  }
+  .btn-delete:active { background: var(--fill); }
+
+  /* Detail view rows */
+  .detail-row {
+    display: flex; justify-content: space-between;
+    padding: 11px 16px; border-bottom: 0.5px solid var(--separator);
+    gap: 12px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .k { color: var(--text-3); font-size: 15px; flex-shrink: 0; }
+  .detail-row .v { color: var(--text); font-size: 17px; text-align: right; word-break: break-all; }
+  .detail-row.stacked { flex-direction: column; gap: 4px; }
+  .detail-row.stacked .v { text-align: left; }
+
+  input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; }
+  select { appearance: none; -webkit-appearance: none; padding-right: 4px; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <h1>种植记录</h1>
+  <button class="btn-add" id="btnNew" aria-label="新建">+</button>
+</div>
+
+<div class="container">
+  <div class="search">
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+      <path d="M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0zm-.85 4.36a6 6 0 1 1 .71-.7l3.49 3.49a.5.5 0 0 1-.71.71l-3.49-3.5z"/>
+    </svg>
+    <input id="search" placeholder="搜索患者、种植系统…" />
+  </div>
+  <div id="list"></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<!-- Edit / New sheet -->
+<div class="sheet" id="editSheet">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <button id="editCancel">取消</button>
+    <div class="title" id="editTitle">新建记录</div>
+    <button class="primary" id="editSave">保存</button>
+  </div>
+
+  <div class="group-title">基本信息</div>
+  <div class="group">
+    <div class="field">
+      <label>初诊日期</label>
+      <input type="date" id="f_firstVisit" />
+    </div>
+    <div class="field">
+      <label>姓名</label>
+      <input type="text" id="f_name" placeholder="患者姓名" />
+    </div>
+    <div class="field">
+      <label>性别</label>
+      <select id="f_gender">
+        <option value="">未填写</option>
+        <option value="男">男</option>
+        <option value="女">女</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>年龄</label>
+      <input type="number" id="f_age" min="0" max="150" placeholder="—" />
+    </div>
+    <div class="field">
+      <label>联系方式</label>
+      <input type="tel" id="f_contact" placeholder="电话 / 微信" />
+    </div>
+  </div>
+
+  <div class="group-title">方案</div>
+  <div class="group">
+    <div class="field">
+      <label>种植系统</label>
+      <input type="text" id="f_system" placeholder="如 Straumann / Nobel" />
+    </div>
+    <div class="field stacked">
+      <label>手术方案</label>
+      <textarea id="f_plan" placeholder="位点、术式、上颌窦提升、骨增量等"></textarea>
+    </div>
+    <div class="field stacked">
+      <label>手术耗材</label>
+      <textarea id="f_materials" placeholder="种植体规格、骨粉、膜、愈合基台等"></textarea>
+    </div>
+  </div>
+
+  <div class="group-title">时间安排</div>
+  <div class="group">
+    <div class="field">
+      <label>一期手术</label>
+      <input type="date" id="f_stage1" />
+    </div>
+    <div class="field">
+      <label>二期手术</label>
+      <input type="date" id="f_stage2" />
+    </div>
+    <div class="field">
+      <label>修复时间</label>
+      <input type="date" id="f_restore" />
+    </div>
+  </div>
+
+  <button class="btn-delete" id="btnDelete" style="display:none;">删除记录</button>
+</div>
+
+<!-- Detail sheet -->
+<div class="sheet" id="detailSheet">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <button id="detailClose">完成</button>
+    <div class="title" id="detailTitle">详情</div>
+    <button class="primary" id="detailEdit">编辑</button>
+  </div>
+  <div id="detailBody"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'zhongzhi_records_v1';
+const $ = (id) => document.getElementById(id);
+
+let records = load();
+let editingId = null;
+let viewingId = null;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+function fmtDate(s) {
+  if (!s) return '';
+  const d = new Date(s);
+  if (isNaN(d)) return s;
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function fmtShort(s) {
+  if (!s) return '';
+  const d = new Date(s);
+  if (isNaN(d)) return s;
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function render() {
+  const q = $('search').value.trim().toLowerCase();
+  const list = $('list');
+  let items = records.slice().sort((a,b) => (b.firstVisit||'').localeCompare(a.firstVisit||''));
+  if (q) {
+    items = items.filter(r =>
+      (r.name||'').toLowerCase().includes(q) ||
+      (r.system||'').toLowerCase().includes(q) ||
+      (r.contact||'').toLowerCase().includes(q)
+    );
+  }
+  if (items.length === 0) {
+    list.innerHTML = `<div class="empty">
+      <div class="icon">🦷</div>
+      <h2>${records.length === 0 ? '还没有记录' : '没有匹配的结果'}</h2>
+      <div>${records.length === 0 ? '点击右上角 + 新建第一条记录' : '试试其他关键词'}</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = items.map(r => `
+    <div class="card" data-id="${r.id}">
+      <div class="row1">
+        <div class="name">${esc(r.name) || '未命名'} <span style="color:var(--text-3);font-weight:400;font-size:14px;">${esc(r.gender||'')}${r.age?` · ${r.age}岁`:''}</span></div>
+        <div class="date">${fmtShort(r.firstVisit)}</div>
+      </div>
+      <div class="meta">
+        ${r.system ? `<span class="badge">${esc(r.system)}</span>` : ''}
+        ${r.stage1 ? `一期 ${fmtShort(r.stage1)} · ` : ''}
+        ${r.stage2 ? `二期 ${fmtShort(r.stage2)} · ` : ''}
+        ${r.restore ? `修复 ${fmtShort(r.restore)}` : ''}
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.id));
+  });
+}
+
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function openSheet(el) {
+  $('scrim').classList.add('show');
+  el.classList.add('show');
+}
+function closeSheets() {
+  $('scrim').classList.remove('show');
+  $('editSheet').classList.remove('show');
+  $('detailSheet').classList.remove('show');
+  editingId = null;
+  viewingId = null;
+}
+
+function openEdit(id) {
+  editingId = id;
+  const r = id ? records.find(x => x.id === id) : null;
+  $('editTitle').textContent = r ? '编辑记录' : '新建记录';
+  $('btnDelete').style.display = r ? 'block' : 'none';
+  const today = new Date().toISOString().slice(0,10);
+  $('f_firstVisit').value = r?.firstVisit || today;
+  $('f_name').value = r?.name || '';
+  $('f_gender').value = r?.gender || '';
+  $('f_age').value = r?.age || '';
+  $('f_contact').value = r?.contact || '';
+  $('f_system').value = r?.system || '';
+  $('f_plan').value = r?.plan || '';
+  $('f_materials').value = r?.materials || '';
+  $('f_stage1').value = r?.stage1 || '';
+  $('f_stage2').value = r?.stage2 || '';
+  $('f_restore').value = r?.restore || '';
+  // auto-resize textareas
+  ['f_plan','f_materials'].forEach(autoResize);
+  openSheet($('editSheet'));
+}
+
+function autoResize(id) {
+  const ta = $(id);
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+
+function saveEdit() {
+  const data = {
+    firstVisit: $('f_firstVisit').value,
+    name: $('f_name').value.trim(),
+    gender: $('f_gender').value,
+    age: $('f_age').value ? parseInt($('f_age').value, 10) : '',
+    contact: $('f_contact').value.trim(),
+    system: $('f_system').value.trim(),
+    plan: $('f_plan').value.trim(),
+    materials: $('f_materials').value.trim(),
+    stage1: $('f_stage1').value,
+    stage2: $('f_stage2').value,
+    restore: $('f_restore').value,
+  };
+  if (!data.name && !data.firstVisit) {
+    alert('请至少填写姓名或初诊日期');
+    return;
+  }
+  if (editingId) {
+    const i = records.findIndex(x => x.id === editingId);
+    records[i] = { ...records[i], ...data };
+  } else {
+    records.push({ id: uid(), ...data, createdAt: Date.now() });
+  }
+  save();
+  render();
+  closeSheets();
+}
+
+function openDetail(id) {
+  viewingId = id;
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  $('detailTitle').textContent = r.name || '详情';
+  const rows = [
+    ['初诊日期', fmtDate(r.firstVisit)],
+    ['姓名', r.name],
+    ['性别', r.gender],
+    ['年龄', r.age ? r.age + ' 岁' : ''],
+    ['联系方式', r.contact],
+    ['种植系统', r.system],
+    ['一期手术', fmtDate(r.stage1)],
+    ['二期手术', fmtDate(r.stage2)],
+    ['修复时间', fmtDate(r.restore)],
+  ];
+  const stacked = [
+    ['手术方案', r.plan],
+    ['手术耗材', r.materials],
+  ];
+  $('detailBody').innerHTML = `
+    <div class="group-title">基本信息</div>
+    <div class="group">
+      ${rows.slice(0,5).map(([k,v]) => v ? `<div class="detail-row"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>` : '').join('')}
+    </div>
+    <div class="group-title">方案</div>
+    <div class="group">
+      <div class="detail-row"><div class="k">种植系统</div><div class="v">${esc(r.system||'—')}</div></div>
+      ${stacked.map(([k,v]) => `<div class="detail-row stacked"><div class="k">${k}</div><div class="v">${esc(v||'—')}</div></div>`).join('')}
+    </div>
+    <div class="group-title">时间安排</div>
+    <div class="group">
+      ${rows.slice(6).map(([k,v]) => `<div class="detail-row"><div class="k">${k}</div><div class="v">${esc(v||'—')}</div></div>`).join('')}
+    </div>
+  `;
+  openSheet($('detailSheet'));
+}
+
+// Events
+$('btnNew').addEventListener('click', () => openEdit(null));
+$('editCancel').addEventListener('click', closeSheets);
+$('editSave').addEventListener('click', saveEdit);
+$('detailClose').addEventListener('click', closeSheets);
+$('detailEdit').addEventListener('click', () => {
+  const id = viewingId;
+  closeSheets();
+  setTimeout(() => openEdit(id), 50);
+});
+$('btnDelete').addEventListener('click', () => {
+  if (!editingId) return;
+  if (confirm('确定删除这条记录吗？')) {
+    records = records.filter(x => x.id !== editingId);
+    save(); render(); closeSheets();
+  }
+});
+$('scrim').addEventListener('click', closeSheets);
+$('search').addEventListener('input', render);
+['f_plan','f_materials'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => autoResize(id));
+});
+
+render();
+</script>
+</body>
+</html>
