@@ -22,6 +22,8 @@
     --green: #34c759;
     --red: #ff3b30;
     --orange: #ff9500;
+    --purple: #af52de;
+    --teal: #5ac8fa;
     --fill: rgba(120, 120, 128, 0.12);
     --fill-2: rgba(120, 120, 128, 0.08);
   }
@@ -57,8 +59,10 @@
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     border-bottom: 0.5px solid var(--separator);
-    padding: 12px 20px;
+    padding: 12px 20px 10px;
     padding-top: calc(env(safe-area-inset-top) + 12px);
+  }
+  .nav-row {
     display: flex; align-items: center; justify-content: space-between;
   }
   .nav h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
@@ -70,6 +74,24 @@
     transition: transform .15s ease, opacity .15s ease;
   }
   .nav .btn-add:active { transform: scale(0.92); opacity: .85; }
+
+  .segmented {
+    display: flex; background: var(--fill);
+    border-radius: 9px; padding: 2px; margin-top: 10px;
+    position: relative;
+  }
+  .segmented button {
+    flex: 1; border: none; background: transparent;
+    padding: 6px 10px; font-size: 13px; font-weight: 500;
+    color: var(--text); cursor: pointer;
+    border-radius: 7px;
+    font-family: inherit;
+  }
+  .segmented button.active {
+    background: var(--card);
+    box-shadow: 0 3px 8px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.04);
+    font-weight: 600;
+  }
 
   .container { max-width: 720px; margin: 0 auto; padding: 16px; }
 
@@ -112,6 +134,60 @@
     margin-right: 6px;
   }
 
+  /* Calendar */
+  .cal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .cal-head .month { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .cal-head .nav-btns { display: flex; gap: 8px; }
+  .cal-head .nav-btns button {
+    border: none; background: var(--fill); color: var(--text);
+    width: 32px; height: 32px; border-radius: 50%;
+    cursor: pointer; font-size: 16px; line-height: 1;
+    font-family: inherit;
+  }
+  .cal-head .nav-btns button.today {
+    width: auto; padding: 0 12px; font-size: 14px;
+    background: var(--blue); color: #fff; font-weight: 500;
+  }
+  .week-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    background: var(--card); border-radius: 12px; overflow: hidden;
+    box-shadow: 0 1px 0 var(--separator);
+  }
+  .day-head {
+    text-align: center; padding: 8px 2px 6px;
+    font-size: 11px; color: var(--text-3); font-weight: 500;
+    border-bottom: 0.5px solid var(--separator);
+    background: var(--fill-2);
+  }
+  .day-head .dow { text-transform: uppercase; letter-spacing: .5px; }
+  .day-head .dnum {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%; margin-top: 2px;
+    font-size: 15px; color: var(--text); font-weight: 600;
+  }
+  .day-head.today .dnum { background: var(--blue); color: #fff; }
+  .day-col {
+    min-height: 320px; padding: 4px;
+    border-right: 0.5px solid var(--separator);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .day-col:last-child { border-right: none; }
+  .event {
+    border-radius: 6px; padding: 5px 6px;
+    font-size: 11px; line-height: 1.25;
+    cursor: pointer; color: #fff;
+    overflow: hidden; word-break: break-all;
+  }
+  .event .ev-name { font-weight: 600; }
+  .event .ev-type { opacity: 0.9; font-size: 10px; }
+  .event.t-first { background: var(--teal); }
+  .event.t-stage1 { background: var(--blue); }
+  .event.t-stage2 { background: var(--purple); }
+  .event.t-restore { background: var(--green); }
+
   /* Modal sheet */
   .scrim {
     position: fixed; inset: 0; background: rgba(0,0,0,.4);
@@ -143,6 +219,7 @@
   .sheet-head button {
     background: none; border: none; color: var(--blue);
     font-size: 17px; cursor: pointer; padding: 6px 4px;
+    font-family: inherit;
   }
   .sheet-head button.primary { font-weight: 600; }
   .sheet-head button:disabled { color: var(--text-3); }
@@ -157,9 +234,10 @@
     padding: 11px 16px;
     border-bottom: 0.5px solid var(--separator);
     gap: 12px;
+    min-height: 44px;
   }
   .field:last-child { border-bottom: none; }
-  .field label { color: var(--text); font-size: 15px; min-width: 96px; flex-shrink: 0; }
+  .field label { color: var(--text); font-size: 15px; min-width: 76px; flex-shrink: 0; }
   .field input, .field select, .field textarea {
     flex: 1; border: none; outline: none; background: transparent;
     font-size: 17px; color: var(--text); text-align: right;
@@ -169,6 +247,14 @@
   .field.stacked { flex-direction: column; align-items: stretch; gap: 6px; }
   .field.stacked label { font-size: 13px; color: var(--text-3); }
   .field.stacked textarea { text-align: left; min-height: 60px; }
+  .field.picker { cursor: pointer; }
+  .field.picker .value {
+    flex: 1; text-align: right; color: var(--text);
+    font-size: 17px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .field.picker .value.empty { color: var(--text-3); }
+  .field.picker .chev { color: var(--text-3); font-size: 14px; }
 
   .group-title {
     font-size: 13px; color: var(--text-3);
@@ -182,10 +268,10 @@
     background: var(--card); color: var(--red);
     border: none; border-radius: 12px;
     font-size: 17px; font-weight: 500; cursor: pointer;
+    font-family: inherit;
   }
   .btn-delete:active { background: var(--fill); }
 
-  /* Detail view rows */
   .detail-row {
     display: flex; justify-content: space-between;
     padding: 11px 16px; border-bottom: 0.5px solid var(--separator);
@@ -199,28 +285,118 @@
 
   input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; }
   select { appearance: none; -webkit-appearance: none; padding-right: 4px; }
+
+  /* Tooth chart */
+  .teeth {
+    padding: 12px 8px;
+  }
+  .teeth-row {
+    display: grid; grid-template-columns: repeat(16, 1fr);
+    gap: 3px; margin-bottom: 4px;
+  }
+  .teeth-row.lower { margin-top: 6px; }
+  .tooth {
+    aspect-ratio: 1 / 1.15;
+    border: 1px solid var(--separator);
+    background: var(--card);
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    color: var(--text-2); cursor: pointer;
+    user-select: none;
+    transition: transform .08s ease;
+  }
+  .tooth.gap-r { margin-right: 4px; }
+  .tooth.sel { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .tooth:active { transform: scale(0.9); }
+  .teeth-summary {
+    padding: 8px 16px 0; font-size: 13px; color: var(--text-3);
+  }
+  .midline {
+    height: 1px; background: var(--separator);
+    margin: 4px 8px;
+  }
+
+  /* Implant system picker */
+  .chips { padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: var(--fill); color: var(--text);
+    padding: 8px 14px; border-radius: 18px;
+    font-size: 15px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid transparent;
+  }
+  .chip.sel { background: var(--blue); color: #fff; }
+  .chip .del {
+    color: var(--text-3); font-size: 13px;
+    margin-left: 2px;
+  }
+  .chip.sel .del { color: rgba(255,255,255,.7); }
+  .add-row {
+    display: flex; gap: 8px; padding: 8px 16px 4px;
+  }
+  .add-row input {
+    flex: 1; padding: 10px 12px; border-radius: 9px;
+    border: none; background: var(--fill);
+    font-size: 15px; outline: none; color: var(--text);
+    font-family: inherit;
+  }
+  .add-row button {
+    background: var(--blue); color: #fff; border: none;
+    border-radius: 9px; padding: 0 16px;
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    font-family: inherit;
+  }
+  .add-row button:disabled { opacity: .4; }
 </style>
 </head>
 <body>
 
 <div class="nav">
-  <h1>种植记录</h1>
-  <button class="btn-add" id="btnNew" aria-label="新建">+</button>
+  <div class="nav-row">
+    <h1>种植记录</h1>
+    <button class="btn-add" id="btnNew" aria-label="新建">+</button>
+  </div>
+  <div class="segmented" id="seg">
+    <button data-view="list" class="active">列表</button>
+    <button data-view="cal">日历</button>
+  </div>
 </div>
 
 <div class="container">
-  <div class="search">
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
-      <path d="M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0zm-.85 4.36a6 6 0 1 1 .71-.7l3.49 3.49a.5.5 0 0 1-.71.71l-3.49-3.5z"/>
-    </svg>
-    <input id="search" placeholder="搜索患者、种植系统…" />
+  <div id="viewList">
+    <div class="search">
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+        <path d="M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0zm-.85 4.36a6 6 0 1 1 .71-.7l3.49 3.49a.5.5 0 0 1-.71.71l-3.49-3.5z"/>
+      </svg>
+      <input id="search" placeholder="搜索患者、种植系统…" />
+    </div>
+    <div id="list"></div>
   </div>
-  <div id="list"></div>
+
+  <div id="viewCal" style="display:none;">
+    <div class="cal-head">
+      <div class="month" id="calMonth"></div>
+      <div class="nav-btns">
+        <button id="calPrev" aria-label="上一周">‹</button>
+        <button class="today" id="calToday">今天</button>
+        <button id="calNext" aria-label="下一周">›</button>
+      </div>
+    </div>
+    <div class="week-grid" id="weekGrid"></div>
+    <div style="margin-top:14px; font-size:12px; color:var(--text-3); padding: 0 4px;">
+      <span class="badge" style="background:var(--teal);color:#fff;">初诊</span>
+      <span class="badge" style="background:var(--blue);color:#fff;">一期</span>
+      <span class="badge" style="background:var(--purple);color:#fff;">二期</span>
+      <span class="badge" style="background:var(--green);color:#fff;">修复</span>
+    </div>
+  </div>
 </div>
 
 <div class="scrim" id="scrim"></div>
 
-<!-- Edit / New sheet -->
+<!-- Edit sheet -->
 <div class="sheet" id="editSheet">
   <div class="handle"></div>
   <div class="sheet-head">
@@ -259,13 +435,19 @@
 
   <div class="group-title">方案</div>
   <div class="group">
-    <div class="field">
+    <div class="field picker" id="pickTeeth">
+      <label>牙位</label>
+      <div class="value empty" id="teethVal">点击选择</div>
+      <span class="chev">›</span>
+    </div>
+    <div class="field picker" id="pickSystem">
       <label>种植系统</label>
-      <input type="text" id="f_system" placeholder="如 Straumann / Nobel" />
+      <div class="value empty" id="systemVal">点击选择</div>
+      <span class="chev">›</span>
     </div>
     <div class="field stacked">
       <label>手术方案</label>
-      <textarea id="f_plan" placeholder="位点、术式、上颌窦提升、骨增量等"></textarea>
+      <textarea id="f_plan" placeholder="术式、上颌窦提升、骨增量等"></textarea>
     </div>
     <div class="field stacked">
       <label>手术耗材</label>
@@ -303,23 +485,71 @@
   <div id="detailBody"></div>
 </div>
 
+<!-- Tooth picker sheet -->
+<div class="sheet" id="teethSheet">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <button id="teethCancel">取消</button>
+    <div class="title">选择牙位</div>
+    <button class="primary" id="teethDone">完成</button>
+  </div>
+  <div class="teeth-summary" id="teethSummary">未选择</div>
+  <div class="teeth" id="teethGrid"></div>
+  <div style="padding: 0 16px 8px; font-size:12px; color:var(--text-3); text-align:center;">
+    FDI 标记法 · 上排 1-2 象限 · 下排 4-3 象限
+  </div>
+</div>
+
+<!-- Implant system picker sheet -->
+<div class="sheet" id="systemSheet">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <button id="systemCancel">取消</button>
+    <div class="title">选择种植系统</div>
+    <button class="primary" id="systemDone">完成</button>
+  </div>
+  <div class="chips" id="systemChips"></div>
+  <div class="add-row">
+    <input type="text" id="systemNew" placeholder="添加新系统，如 Bicon" maxlength="40" />
+    <button id="systemAdd">添加</button>
+  </div>
+  <div style="padding: 6px 20px 0; font-size:12px; color:var(--text-3);">
+    点击系统选择 · 点 × 删除
+  </div>
+</div>
+
 <script>
 const STORAGE_KEY = 'zhongzhi_records_v1';
+const SYSTEMS_KEY = 'zhongzhi_systems_v1';
+const DEFAULT_SYSTEMS = ['Straumann', 'Nobel Biocare', 'Astra Tech', 'Osstem', 'Dentium', 'BLT', 'BLX', 'ITI'];
+
+const FDI_UPPER = ['18','17','16','15','14','13','12','11','21','22','23','24','25','26','27','28'];
+const FDI_LOWER = ['48','47','46','45','44','43','42','41','31','32','33','34','35','36','37','38'];
+
 const $ = (id) => document.getElementById(id);
 
-let records = load();
+let records = load(STORAGE_KEY, []);
+let systems = load(SYSTEMS_KEY, DEFAULT_SYSTEMS);
 let editingId = null;
 let viewingId = null;
+let currentView = 'list';
+let weekAnchor = startOfWeek(new Date());
 
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { return []; }
+// Working state for pickers
+let pickTeethState = [];
+let pickSystemState = '';
+
+function load(key, fallback) {
+  try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; }
+  catch { return fallback; }
 }
-function save() {
+function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  localStorage.setItem(SYSTEMS_KEY, JSON.stringify(systems));
 }
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function fmtDate(s) {
   if (!s) return '';
@@ -333,8 +563,21 @@ function fmtShort(s) {
   if (isNaN(d)) return s;
   return `${d.getMonth()+1}/${d.getDate()}`;
 }
+function toISO(d) {
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+function startOfWeek(d) {
+  const x = new Date(d); x.setHours(0,0,0,0);
+  const dow = x.getDay(); // 0=Sun
+  const diff = (dow + 6) % 7; // Monday-based
+  x.setDate(x.getDate() - diff);
+  return x;
+}
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate()+n); return x; }
 
-function render() {
+// ---------- List view ----------
+function renderList() {
   const q = $('search').value.trim().toLowerCase();
   const list = $('list');
   let items = records.slice().sort((a,b) => (b.firstVisit||'').localeCompare(a.firstVisit||''));
@@ -342,7 +585,8 @@ function render() {
     items = items.filter(r =>
       (r.name||'').toLowerCase().includes(q) ||
       (r.system||'').toLowerCase().includes(q) ||
-      (r.contact||'').toLowerCase().includes(q)
+      (r.contact||'').toLowerCase().includes(q) ||
+      (r.teeth||[]).join(' ').includes(q)
     );
   }
   if (items.length === 0) {
@@ -360,6 +604,7 @@ function render() {
         <div class="date">${fmtShort(r.firstVisit)}</div>
       </div>
       <div class="meta">
+        ${(r.teeth&&r.teeth.length) ? `<span class="badge">${r.teeth.join(', ')}</span>` : ''}
         ${r.system ? `<span class="badge">${esc(r.system)}</span>` : ''}
         ${r.stage1 ? `一期 ${fmtShort(r.stage1)} · ` : ''}
         ${r.stage2 ? `二期 ${fmtShort(r.stage2)} · ` : ''}
@@ -372,20 +617,79 @@ function render() {
   });
 }
 
-function esc(s) {
-  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// ---------- Calendar view ----------
+function renderCal() {
+  const start = weekAnchor;
+  const end = addDays(start, 6);
+  const sameMonth = start.getMonth() === end.getMonth();
+  $('calMonth').textContent = sameMonth
+    ? `${start.getFullYear()}年${start.getMonth()+1}月`
+    : `${start.getMonth()+1}月 – ${end.getMonth()+1}月`;
+
+  const dows = ['一','二','三','四','五','六','日'];
+  const todayISO = toISO(new Date());
+  const grid = $('weekGrid');
+
+  // collect events per day
+  const eventsByDay = {};
+  for (let i = 0; i < 7; i++) eventsByDay[toISO(addDays(start, i))] = [];
+  const types = [
+    ['firstVisit', '初诊', 't-first'],
+    ['stage1', '一期', 't-stage1'],
+    ['stage2', '二期', 't-stage2'],
+    ['restore', '修复', 't-restore'],
+  ];
+  records.forEach(r => {
+    types.forEach(([key, label, cls]) => {
+      const v = r[key];
+      if (v && eventsByDay[v]) {
+        eventsByDay[v].push({ id: r.id, name: r.name || '未命名', label, cls });
+      }
+    });
+  });
+
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(start, i);
+    const iso = toISO(d);
+    const isToday = iso === todayISO;
+    html += `<div class="day-head ${isToday?'today':''}">
+      <div class="dow">${dows[i]}</div>
+      <div class="dnum">${d.getDate()}</div>
+    </div>`;
+  }
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(start, i);
+    const iso = toISO(d);
+    const evs = eventsByDay[iso];
+    html += `<div class="day-col">${
+      evs.map(e => `<div class="event ${e.cls}" data-id="${e.id}">
+        <div class="ev-name">${esc(e.name)}</div>
+        <div class="ev-type">${e.label}</div>
+      </div>`).join('')
+    }</div>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('.event').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.id));
+  });
 }
 
-function openSheet(el) {
-  $('scrim').classList.add('show');
-  el.classList.add('show');
+function render() {
+  if (currentView === 'list') renderList();
+  else renderCal();
 }
-function closeSheets() {
+
+// ---------- Sheets ----------
+function openSheet(el) { $('scrim').classList.add('show'); el.classList.add('show'); }
+function closeAllSheets() {
   $('scrim').classList.remove('show');
-  $('editSheet').classList.remove('show');
-  $('detailSheet').classList.remove('show');
-  editingId = null;
-  viewingId = null;
+  document.querySelectorAll('.sheet').forEach(s => s.classList.remove('show'));
+  editingId = null; viewingId = null;
+}
+function closeSheet(el) {
+  el.classList.remove('show');
+  if (!document.querySelector('.sheet.show')) $('scrim').classList.remove('show');
 }
 
 function openEdit(id) {
@@ -393,29 +697,39 @@ function openEdit(id) {
   const r = id ? records.find(x => x.id === id) : null;
   $('editTitle').textContent = r ? '编辑记录' : '新建记录';
   $('btnDelete').style.display = r ? 'block' : 'none';
-  const today = new Date().toISOString().slice(0,10);
+  const today = toISO(new Date());
   $('f_firstVisit').value = r?.firstVisit || today;
   $('f_name').value = r?.name || '';
   $('f_gender').value = r?.gender || '';
   $('f_age').value = r?.age || '';
   $('f_contact').value = r?.contact || '';
-  $('f_system').value = r?.system || '';
   $('f_plan').value = r?.plan || '';
   $('f_materials').value = r?.materials || '';
   $('f_stage1').value = r?.stage1 || '';
   $('f_stage2').value = r?.stage2 || '';
   $('f_restore').value = r?.restore || '';
-  // auto-resize textareas
+  pickTeethState = (r?.teeth || []).slice();
+  pickSystemState = r?.system || '';
+  updateTeethVal();
+  updateSystemVal();
   ['f_plan','f_materials'].forEach(autoResize);
   openSheet($('editSheet'));
 }
-
 function autoResize(id) {
   const ta = $(id);
   ta.style.height = 'auto';
   ta.style.height = ta.scrollHeight + 'px';
 }
-
+function updateTeethVal() {
+  const v = $('teethVal');
+  if (pickTeethState.length === 0) { v.textContent = '点击选择'; v.classList.add('empty'); }
+  else { v.textContent = pickTeethState.join(', '); v.classList.remove('empty'); }
+}
+function updateSystemVal() {
+  const v = $('systemVal');
+  if (!pickSystemState) { v.textContent = '点击选择'; v.classList.add('empty'); }
+  else { v.textContent = pickSystemState; v.classList.remove('empty'); }
+}
 function saveEdit() {
   const data = {
     firstVisit: $('f_firstVisit').value,
@@ -423,26 +737,22 @@ function saveEdit() {
     gender: $('f_gender').value,
     age: $('f_age').value ? parseInt($('f_age').value, 10) : '',
     contact: $('f_contact').value.trim(),
-    system: $('f_system').value.trim(),
+    teeth: pickTeethState.slice(),
+    system: pickSystemState,
     plan: $('f_plan').value.trim(),
     materials: $('f_materials').value.trim(),
     stage1: $('f_stage1').value,
     stage2: $('f_stage2').value,
     restore: $('f_restore').value,
   };
-  if (!data.name && !data.firstVisit) {
-    alert('请至少填写姓名或初诊日期');
-    return;
-  }
+  if (!data.name && !data.firstVisit) { alert('请至少填写姓名或初诊日期'); return; }
   if (editingId) {
     const i = records.findIndex(x => x.id === editingId);
     records[i] = { ...records[i], ...data };
   } else {
     records.push({ id: uid(), ...data, createdAt: Date.now() });
   }
-  save();
-  render();
-  closeSheets();
+  persist(); render(); closeAllSheets();
 }
 
 function openDetail(id) {
@@ -450,60 +760,165 @@ function openDetail(id) {
   const r = records.find(x => x.id === id);
   if (!r) return;
   $('detailTitle').textContent = r.name || '详情';
-  const rows = [
-    ['初诊日期', fmtDate(r.firstVisit)],
-    ['姓名', r.name],
-    ['性别', r.gender],
-    ['年龄', r.age ? r.age + ' 岁' : ''],
-    ['联系方式', r.contact],
-    ['种植系统', r.system],
-    ['一期手术', fmtDate(r.stage1)],
-    ['二期手术', fmtDate(r.stage2)],
-    ['修复时间', fmtDate(r.restore)],
-  ];
-  const stacked = [
-    ['手术方案', r.plan],
-    ['手术耗材', r.materials],
-  ];
+  const teethStr = (r.teeth && r.teeth.length) ? r.teeth.join(', ') : '—';
   $('detailBody').innerHTML = `
     <div class="group-title">基本信息</div>
     <div class="group">
-      ${rows.slice(0,5).map(([k,v]) => v ? `<div class="detail-row"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>` : '').join('')}
+      <div class="detail-row"><div class="k">初诊日期</div><div class="v">${esc(fmtDate(r.firstVisit)||'—')}</div></div>
+      <div class="detail-row"><div class="k">姓名</div><div class="v">${esc(r.name||'—')}</div></div>
+      <div class="detail-row"><div class="k">性别</div><div class="v">${esc(r.gender||'—')}</div></div>
+      <div class="detail-row"><div class="k">年龄</div><div class="v">${r.age ? r.age+' 岁' : '—'}</div></div>
+      <div class="detail-row"><div class="k">联系方式</div><div class="v">${esc(r.contact||'—')}</div></div>
     </div>
     <div class="group-title">方案</div>
     <div class="group">
+      <div class="detail-row"><div class="k">牙位</div><div class="v">${esc(teethStr)}</div></div>
       <div class="detail-row"><div class="k">种植系统</div><div class="v">${esc(r.system||'—')}</div></div>
-      ${stacked.map(([k,v]) => `<div class="detail-row stacked"><div class="k">${k}</div><div class="v">${esc(v||'—')}</div></div>`).join('')}
+      <div class="detail-row stacked"><div class="k">手术方案</div><div class="v">${esc(r.plan||'—')}</div></div>
+      <div class="detail-row stacked"><div class="k">手术耗材</div><div class="v">${esc(r.materials||'—')}</div></div>
     </div>
     <div class="group-title">时间安排</div>
     <div class="group">
-      ${rows.slice(6).map(([k,v]) => `<div class="detail-row"><div class="k">${k}</div><div class="v">${esc(v||'—')}</div></div>`).join('')}
+      <div class="detail-row"><div class="k">一期手术</div><div class="v">${esc(fmtDate(r.stage1)||'—')}</div></div>
+      <div class="detail-row"><div class="k">二期手术</div><div class="v">${esc(fmtDate(r.stage2)||'—')}</div></div>
+      <div class="detail-row"><div class="k">修复时间</div><div class="v">${esc(fmtDate(r.restore)||'—')}</div></div>
     </div>
   `;
   openSheet($('detailSheet'));
 }
 
-// Events
+// ---------- Tooth picker ----------
+function renderTeethGrid() {
+  const upper = $('teethGrid');
+  let html = '<div class="teeth-row upper">';
+  FDI_UPPER.forEach((n, i) => {
+    const gap = i === 7 ? ' gap-r' : '';
+    const sel = pickTeethState.includes(n) ? ' sel' : '';
+    html += `<div class="tooth${sel}${gap}" data-n="${n}">${n}</div>`;
+  });
+  html += '</div><div class="midline"></div><div class="teeth-row lower">';
+  FDI_LOWER.forEach((n, i) => {
+    const gap = i === 7 ? ' gap-r' : '';
+    const sel = pickTeethState.includes(n) ? ' sel' : '';
+    html += `<div class="tooth${sel}${gap}" data-n="${n}">${n}</div>`;
+  });
+  html += '</div>';
+  upper.innerHTML = html;
+  upper.querySelectorAll('.tooth').forEach(el => {
+    el.addEventListener('click', () => {
+      const n = el.dataset.n;
+      const i = pickTeethState.indexOf(n);
+      if (i >= 0) pickTeethState.splice(i, 1); else pickTeethState.push(n);
+      pickTeethState.sort();
+      el.classList.toggle('sel');
+      updateTeethSummary();
+    });
+  });
+  updateTeethSummary();
+}
+function updateTeethSummary() {
+  $('teethSummary').textContent = pickTeethState.length
+    ? `已选 ${pickTeethState.length} 颗：${pickTeethState.join(', ')}`
+    : '未选择';
+}
+
+// ---------- System picker ----------
+function renderSystemChips() {
+  const c = $('systemChips');
+  c.innerHTML = systems.map(s => `
+    <div class="chip ${s === pickSystemState ? 'sel' : ''}" data-s="${esc(s)}">
+      <span>${esc(s)}</span>
+      <span class="del" data-del="${esc(s)}">×</span>
+    </div>
+  `).join('') || '<div style="color:var(--text-3); padding: 8px;">还没有系统，下方添加</div>';
+  c.querySelectorAll('.chip').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.dataset.del) {
+        const name = e.target.dataset.del;
+        if (confirm(`删除「${name}」？`)) {
+          systems = systems.filter(x => x !== name);
+          if (pickSystemState === name) pickSystemState = '';
+          persist(); renderSystemChips();
+        }
+        return;
+      }
+      pickSystemState = el.dataset.s;
+      renderSystemChips();
+    });
+  });
+}
+
+// ---------- Events ----------
 $('btnNew').addEventListener('click', () => openEdit(null));
-$('editCancel').addEventListener('click', closeSheets);
+$('editCancel').addEventListener('click', closeAllSheets);
 $('editSave').addEventListener('click', saveEdit);
-$('detailClose').addEventListener('click', closeSheets);
+$('detailClose').addEventListener('click', closeAllSheets);
 $('detailEdit').addEventListener('click', () => {
-  const id = viewingId;
-  closeSheets();
+  const id = viewingId; closeAllSheets();
   setTimeout(() => openEdit(id), 50);
 });
 $('btnDelete').addEventListener('click', () => {
   if (!editingId) return;
   if (confirm('确定删除这条记录吗？')) {
     records = records.filter(x => x.id !== editingId);
-    save(); render(); closeSheets();
+    persist(); render(); closeAllSheets();
   }
 });
-$('scrim').addEventListener('click', closeSheets);
+$('scrim').addEventListener('click', closeAllSheets);
 $('search').addEventListener('input', render);
+
 ['f_plan','f_materials'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => autoResize(id));
+  $(id).addEventListener('input', () => autoResize(id));
+});
+
+// Segmented control
+$('seg').querySelectorAll('button').forEach(b => {
+  b.addEventListener('click', () => {
+    $('seg').querySelectorAll('button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    currentView = b.dataset.view;
+    $('viewList').style.display = currentView === 'list' ? '' : 'none';
+    $('viewCal').style.display = currentView === 'cal' ? '' : 'none';
+    render();
+  });
+});
+
+// Calendar nav
+$('calPrev').addEventListener('click', () => { weekAnchor = addDays(weekAnchor, -7); renderCal(); });
+$('calNext').addEventListener('click', () => { weekAnchor = addDays(weekAnchor, 7); renderCal(); });
+$('calToday').addEventListener('click', () => { weekAnchor = startOfWeek(new Date()); renderCal(); });
+
+// Tooth picker open
+$('pickTeeth').addEventListener('click', () => {
+  renderTeethGrid();
+  openSheet($('teethSheet'));
+});
+$('teethCancel').addEventListener('click', () => closeSheet($('teethSheet')));
+$('teethDone').addEventListener('click', () => {
+  updateTeethVal();
+  closeSheet($('teethSheet'));
+});
+
+// System picker open
+$('pickSystem').addEventListener('click', () => {
+  renderSystemChips();
+  openSheet($('systemSheet'));
+});
+$('systemCancel').addEventListener('click', () => closeSheet($('systemSheet')));
+$('systemDone').addEventListener('click', () => {
+  updateSystemVal();
+  closeSheet($('systemSheet'));
+});
+$('systemAdd').addEventListener('click', () => {
+  const v = $('systemNew').value.trim();
+  if (!v) return;
+  if (!systems.includes(v)) { systems.push(v); persist(); }
+  pickSystemState = v;
+  $('systemNew').value = '';
+  renderSystemChips();
+});
+$('systemNew').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); $('systemAdd').click(); }
 });
 
 render();
