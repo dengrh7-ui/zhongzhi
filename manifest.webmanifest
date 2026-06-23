@@ -1,7 +1,7 @@
 {
-  "name": "种植记录本",
-  "short_name": "种植记录",
-  "description": "极简的牙科种植病例记录",
+  "name": "种植日记",
+  "short_name": "种植日记",
+  "description": "极简的牙科种植病例日记",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

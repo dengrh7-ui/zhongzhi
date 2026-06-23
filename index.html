@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" type="image/svg+xml" href="icon.svg" />
 <link rel="apple-touch-icon" href="icon.svg" />
-<title>种植记录本</title>
+<title>种植日记</title>
 <style>
   :root {
     --bg: #eaf2ff;
@@ -27,8 +27,8 @@
     --shadow: 0 2px 12px rgba(0, 60, 140, 0.06);
     --c-first: #5ac8fa;
     --c-stage1: #007aff;
-    --c-stage2: #2e5fcc;
-    --c-restore: #0a2540;
+    --c-stage2: #af52de;
+    --c-restore: #34c759;
     --radius-xl: 22px;
     --radius-lg: 18px;
     --radius-md: 14px;
@@ -69,6 +69,11 @@
   .nav h1 {
     margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;
     color: var(--blue);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav h1 .logo {
+    width: 30px; height: 30px; border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0, 122, 255, 0.28);
   }
   .nav .btn-add {
     background: var(--blue); color: #fff; border: none;
@@ -135,6 +140,7 @@
     border: 1px solid var(--border);
   }
   .card:active { transform: scale(0.985); }
+  .card, .event { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
   .card .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .card .name { font-size: 17px; font-weight: 600; }
   .card .date { font-size: 13px; color: var(--blue); font-weight: 500; }
@@ -386,17 +392,17 @@
 
 <div class="nav">
   <div class="nav-row">
-    <h1>种植记录</h1>
+    <h1><img class="logo" src="icon.svg" alt="" />种植日记</h1>
     <button class="btn-add" id="btnNew" aria-label="新建">+</button>
   </div>
   <div class="segmented" id="seg">
-    <button data-view="list" class="active">列表</button>
-    <button data-view="cal">日历</button>
+    <button data-view="cal" class="active">日历</button>
+    <button data-view="list">列表</button>
   </div>
 </div>
 
 <div class="container">
-  <div id="viewList">
+  <div id="viewList" style="display:none;">
     <div class="search">
       <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
         <path d="M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0zm-.85 4.36a6 6 0 1 1 .71-.7l3.49 3.49a.5.5 0 0 1-.71.71l-3.49-3.5z"/>
@@ -406,7 +412,7 @@
     <div id="list"></div>
   </div>
 
-  <div id="viewCal" style="display:none;">
+  <div id="viewCal">
     <div class="cal-head">
       <div class="month" id="calMonth"></div>
       <div class="nav-btns">
@@ -563,7 +569,7 @@ let records = load(STORAGE_KEY, []);
 let systems = load(SYSTEMS_KEY, DEFAULT_SYSTEMS);
 let editingId = null;
 let viewingId = null;
-let currentView = 'list';
+let currentView = 'cal';
 let weekAnchor = startOfWeek(new Date());
 
 // Working state for pickers
@@ -579,6 +585,39 @@ function persist() {
   localStorage.setItem(SYSTEMS_KEY, JSON.stringify(systems));
 }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function attachLongPress(el, onLong, ms = 550) {
+  let timer = null, fired = false, sx = 0, sy = 0;
+  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  el.addEventListener('pointerdown', (e) => {
+    fired = false; sx = e.clientX; sy = e.clientY;
+    cancel();
+    timer = setTimeout(() => {
+      fired = true; timer = null;
+      if (navigator.vibrate) navigator.vibrate(15);
+      onLong(e);
+    }, ms);
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) cancel();
+  });
+  el.addEventListener('pointerup', cancel);
+  el.addEventListener('pointercancel', cancel);
+  el.addEventListener('pointerleave', cancel);
+  el.addEventListener('click', (e) => {
+    if (fired) { e.stopPropagation(); e.preventDefault(); fired = false; }
+  }, true);
+  el.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+
+function deleteRecord(id) {
+  const r = records.find(x => x.id === id);
+  if (!r) return;
+  if (confirm(`删除「${r.name || '未命名'}」这条记录？`)) {
+    records = records.filter(x => x.id !== id);
+    persist(); render();
+  }
+}
+
 function esc(s) {
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -645,6 +684,7 @@ function renderList() {
   `).join('');
   list.querySelectorAll('.card').forEach(el => {
     el.addEventListener('click', () => openDetail(el.dataset.id));
+    attachLongPress(el, () => deleteRecord(el.dataset.id));
   });
 }
 
@@ -703,6 +743,7 @@ function renderCal() {
   grid.innerHTML = html;
   grid.querySelectorAll('.event').forEach(el => {
     el.addEventListener('click', () => openDetail(el.dataset.id));
+    attachLongPress(el, () => deleteRecord(el.dataset.id));
   });
 }
 
