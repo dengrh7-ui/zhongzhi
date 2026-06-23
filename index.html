@@ -527,6 +527,9 @@
 <div class="sheet action-sheet" id="moreSheet">
   <div class="action-hint">数据保存在本机浏览器，建议定期导出备份</div>
   <div class="action-group">
+    <button class="action-btn" id="actSync">云端同步</button>
+  </div>
+  <div class="action-group">
     <button class="action-btn" id="actExport">导出备份</button>
     <button class="action-btn" id="actImport">导入备份</button>
   </div>
@@ -534,6 +537,36 @@
 </div>
 
 <input type="file" id="importFile" accept="application/json,.json" style="display:none" />
+
+<!-- Cloud sync settings sheet -->
+<div class="sheet" id="syncSheet">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <button id="syncCancel">取消</button>
+    <div class="title">云端同步</div>
+    <button class="primary" id="syncSave">保存</button>
+  </div>
+  <div class="group-title">连接</div>
+  <div class="group">
+    <div class="field stacked">
+      <label>同步地址（Worker URL）</label>
+      <input type="url" id="f_syncUrl" placeholder="https://zhongzhi-sync.xxx.workers.dev" />
+    </div>
+    <div class="field stacked">
+      <label>同步密码（6-32 位，建议 12+ 位混合）</label>
+      <input type="text" id="f_syncCode" placeholder="如 A8k3-Fp29-Qz7m" autocomplete="off" autocapitalize="off" autocorrect="off" />
+    </div>
+  </div>
+  <div class="group-title">状态</div>
+  <div class="group">
+    <div class="detail-row"><div class="k">连接</div><div class="v" id="syncStatus">未启用</div></div>
+    <div class="detail-row"><div class="k">上次同步</div><div class="v" id="syncWhen">—</div></div>
+  </div>
+  <button class="btn-delete" id="syncDisable" style="display:none;">关闭云端同步</button>
+  <div style="padding: 8px 24px; font-size:12px; color:var(--text-3); line-height: 1.6;">
+    部署后端见仓库 <code>worker/README.md</code>。任何拿到密码的人都能读取/覆盖你的数据，请使用长且随机的密码。
+  </div>
+</div>
 
 <!-- Edit sheet -->
 <div class="sheet" id="editSheet">
@@ -679,6 +712,10 @@ const SYSTEMS_KEY = 'zhongzhi_systems_v1';
 const BACKUP_KEY = 'zhongzhi_lastBackupAt_v1';
 const DEFAULT_SYSTEMS = ['Straumann', 'Nobel Biocare', 'Astra Tech', 'Osstem', 'Dentium', 'BLT', 'BLX', 'ITI'];
 
+let syncUrl = '', syncCode = '';
+let dataUpdatedAt = 0, lastSyncedAt = 0;
+let cloudPushTimer = null;
+
 // ---------- IndexedDB key/value layer ----------
 const DB_NAME = 'zhongzhi', DB_STORE = 'kv';
 let dbPromise = null;
@@ -731,13 +768,95 @@ let pickTeethState = [];
 let pickSystemState = '';
 
 function persist() {
+  dataUpdatedAt = Date.now();
   // Dual-write: IndexedDB (primary, persistent) + localStorage (fallback)
   idbSet('records', records).catch(() => {});
   idbSet('systems', systems).catch(() => {});
+  idbSet('dataUpdatedAt', dataUpdatedAt).catch(() => {});
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     localStorage.setItem(SYSTEMS_KEY, JSON.stringify(systems));
   } catch {}
+  scheduleCloudPush();
+}
+
+// ---------- Cloud sync ----------
+function syncEndpoint() {
+  if (!syncUrl || !syncCode) return null;
+  return syncUrl.replace(/\/$/, '') + '/api/sync/' + encodeURIComponent(syncCode);
+}
+function scheduleCloudPush() {
+  if (!syncEndpoint()) return;
+  if (cloudPushTimer) clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(cloudPush, 1200);
+}
+async function cloudPush() {
+  const ep = syncEndpoint();
+  if (!ep) return;
+  updateSyncStatus('同步中…');
+  try {
+    const res = await fetch(ep, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records, systems, updatedAt: dataUpdatedAt }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    lastSyncedAt = Date.now();
+    idbSet('lastSyncedAt', lastSyncedAt).catch(() => {});
+    updateSyncStatus('已连接');
+  } catch (e) {
+    updateSyncStatus('同步失败：' + (e.message || e));
+  }
+}
+async function cloudPull() {
+  const ep = syncEndpoint();
+  if (!ep) return;
+  updateSyncStatus('同步中…');
+  try {
+    const res = await fetch(ep);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && data.empty) {
+      // Remote empty: push local up if we have anything
+      if (records.length || systems.length !== DEFAULT_SYSTEMS.length) await cloudPush();
+      else updateSyncStatus('已连接（云端为空）');
+      return;
+    }
+    const remoteAt = Number(data.updatedAt || 0);
+    if (remoteAt > dataUpdatedAt) {
+      records = Array.isArray(data.records) ? data.records : [];
+      systems = Array.isArray(data.systems) && data.systems.length ? data.systems : DEFAULT_SYSTEMS.slice();
+      dataUpdatedAt = remoteAt;
+      idbSet('records', records).catch(() => {});
+      idbSet('systems', systems).catch(() => {});
+      idbSet('dataUpdatedAt', dataUpdatedAt).catch(() => {});
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        localStorage.setItem(SYSTEMS_KEY, JSON.stringify(systems));
+      } catch {}
+      render();
+    } else if (dataUpdatedAt > remoteAt) {
+      await cloudPush();
+      return;
+    }
+    lastSyncedAt = Date.now();
+    idbSet('lastSyncedAt', lastSyncedAt).catch(() => {});
+    updateSyncStatus('已连接');
+  } catch (e) {
+    updateSyncStatus('同步失败：' + (e.message || e));
+  }
+}
+function updateSyncStatus(text) {
+  const s = $('syncStatus'), w = $('syncWhen');
+  if (!s) return;
+  if (!syncEndpoint()) { s.textContent = '未启用'; w.textContent = '—'; return; }
+  s.textContent = text || '已连接';
+  if (lastSyncedAt) {
+    const min = Math.floor((Date.now() - lastSyncedAt) / 60000);
+    w.textContent = min < 1 ? '刚刚' : (min < 60 ? `${min} 分钟前` : `${Math.floor(min/60)} 小时前`);
+  } else {
+    w.textContent = '—';
+  }
 }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 function attachLongPress(el, onLong, ms = 550) {
@@ -1257,9 +1376,16 @@ async function boot() {
   records = Array.isArray(r) ? r : [];
   systems = Array.isArray(s) && s.length ? s : DEFAULT_SYSTEMS.slice();
   lastBackupAt = bk || 0;
+  try {
+    syncUrl = (await idbGet('syncUrl')) || '';
+    syncCode = (await idbGet('syncCode')) || '';
+    dataUpdatedAt = (await idbGet('dataUpdatedAt')) || 0;
+    lastSyncedAt = (await idbGet('lastSyncedAt')) || 0;
+  } catch {}
   updateBackupBadge();
   render();
   maybeNudgeBackup();
+  if (syncEndpoint()) cloudPull();
 }
 
 function importBackup(file) {
@@ -1299,6 +1425,36 @@ $('btnMore').addEventListener('click', () => openSheet($('moreSheet')));
 $('actCancel').addEventListener('click', () => closeSheet($('moreSheet')));
 $('actExport').addEventListener('click', () => { closeSheet($('moreSheet')); exportBackup(); });
 $('actImport').addEventListener('click', () => { closeSheet($('moreSheet')); $('importFile').click(); });
+$('actSync').addEventListener('click', () => {
+  closeSheet($('moreSheet'));
+  $('f_syncUrl').value = syncUrl;
+  $('f_syncCode').value = syncCode;
+  $('syncDisable').style.display = (syncUrl && syncCode) ? 'block' : 'none';
+  updateSyncStatus();
+  openSheet($('syncSheet'));
+});
+$('syncCancel').addEventListener('click', () => closeSheet($('syncSheet')));
+$('syncSave').addEventListener('click', async () => {
+  const url = $('f_syncUrl').value.trim();
+  const code = $('f_syncCode').value.trim();
+  if (!url || !code) { alert('请填写同步地址和密码'); return; }
+  if (!/^https?:\/\//.test(url)) { alert('地址必须以 http:// 或 https:// 开头'); return; }
+  if (!/^[A-Za-z0-9_-]{6,32}$/.test(code)) { alert('密码需为 6-32 位字母/数字/-/_'); return; }
+  syncUrl = url; syncCode = code;
+  await idbSet('syncUrl', syncUrl);
+  await idbSet('syncCode', syncCode);
+  closeSheet($('syncSheet'));
+  await cloudPull();
+});
+$('syncDisable').addEventListener('click', async () => {
+  if (!confirm('关闭云端同步？本地数据不会被删除。')) return;
+  syncUrl = ''; syncCode = ''; lastSyncedAt = 0;
+  await idbSet('syncUrl', '');
+  await idbSet('syncCode', '');
+  await idbSet('lastSyncedAt', 0);
+  updateSyncStatus();
+  closeSheet($('syncSheet'));
+});
 $('importFile').addEventListener('change', (e) => {
   const f = e.target.files && e.target.files[0];
   e.target.value = '';
