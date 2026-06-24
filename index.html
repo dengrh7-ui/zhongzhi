@@ -318,6 +318,18 @@
   }
   .btn-delete:active { background: var(--blue-soft); }
 
+  .btn-save {
+    display: block; width: calc(100% - 32px);
+    margin: 16px; padding: 15px;
+    background: var(--blue); color: #fff;
+    border: none; border-radius: var(--radius-md);
+    font-size: 17px; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+    box-shadow: var(--shadow);
+  }
+  .btn-save:active { opacity: 0.85; }
+  .btn-save:disabled { background: var(--text-3); }
+
   .detail-row {
     display: flex; justify-content: space-between;
     padding: 11px 16px; border-bottom: 0.5px solid var(--separator);
@@ -574,7 +586,7 @@
   <div class="sheet-head">
     <button id="editCancel">取消</button>
     <div class="title" id="editTitle">新建记录</div>
-    <button class="primary" id="editSave">保存</button>
+    <button style="visibility:hidden;" aria-hidden="true">保存</button>
   </div>
 
   <div class="group-title">基本信息</div>
@@ -659,6 +671,7 @@
     </div>
   </div>
 
+  <button class="btn-save" id="editSave">保存</button>
   <button class="btn-delete" id="btnDelete" style="display:none;">删除记录</button>
 </div>
 
