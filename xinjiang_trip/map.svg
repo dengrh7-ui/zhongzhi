@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" font-family="PingFang SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#d35400"/>
+    </marker>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef9e7"/>
+      <stop offset="100%" stop-color="#fdf2e9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="900" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="600" y="40" font-size="28" font-weight="bold" text-anchor="middle" fill="#2c3e50">成都 → 新疆 16天Local深度游 路线图</text>
+  <text x="600" y="65" font-size="14" text-anchor="middle" fill="#7f8c8d">北疆草原牧场 + 帕米尔高原 + 喀什老城</text>
+
+  <!-- Xinjiang outline (rough) -->
+  <path d="M 200,200 Q 350,150 550,180 Q 750,170 950,210 Q 1050,280 1080,420 Q 1050,580 950,680 Q 800,750 600,760 Q 400,750 280,680 Q 180,560 170,420 Q 170,300 200,200 Z"
+        fill="#f9e79f" stroke="#b9770e" stroke-width="2" opacity="0.4"/>
+
+  <!-- Tianshan mountain divider -->
+  <path d="M 200,470 Q 400,440 600,460 Q 800,470 1050,455"
+        fill="none" stroke="#7d6608" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+  <text x="220" y="460" font-size="13" fill="#7d6608" font-style="italic">天山山脉</text>
+
+  <!-- North Xinjiang label -->
+  <text x="600" y="240" font-size="20" fill="#229954" font-weight="bold" opacity="0.5">北疆 · 草原牧区</text>
+  <!-- South Xinjiang label -->
+  <text x="600" y="640" font-size="20" fill="#a04000" font-weight="bold" opacity="0.5">南疆 · 戈壁绿洲</text>
+
+  <!-- Cities and points (北疆) -->
+  <!-- 乌鲁木齐 -->
+  <circle cx="700" cy="500" r="9" fill="#c0392b"/>
+  <text x="715" y="505" font-size="15" font-weight="bold">乌鲁木齐 D1</text>
+  <text x="715" y="522" font-size="11" fill="#555">二道桥大巴扎</text>
+
+  <!-- 富蕴 -->
+  <circle cx="880" cy="280" r="7" fill="#2980b9"/>
+  <text x="895" y="285" font-size="13" font-weight="bold">富蕴 D2</text>
+
+  <!-- 可可托海 -->
+  <circle cx="920" cy="240" r="7" fill="#2980b9"/>
+  <text x="935" y="245" font-size="13" font-weight="bold">可可托海 D3</text>
+  <text x="935" y="260" font-size="10" fill="#555">牧民毡房</text>
+
+  <!-- 白哈巴/喀纳斯 -->
+  <circle cx="760" cy="200" r="7" fill="#2980b9"/>
+  <text x="595" y="195" font-size="13" font-weight="bold">白哈巴/禾木 D4-D5</text>
+  <text x="595" y="210" font-size="10" fill="#555">边境图瓦村(非景区)</text>
+
+  <!-- 布尔津 -->
+  <circle cx="700" cy="240" r="6" fill="#2980b9"/>
+  <text x="640" y="260" font-size="12">布尔津</text>
+
+  <!-- 克拉玛依/魔鬼城 -->
+  <circle cx="560" cy="350" r="7" fill="#2980b9"/>
+  <text x="450" y="345" font-size="13" font-weight="bold">克拉玛依 D6</text>
+  <text x="450" y="360" font-size="10" fill="#555">魔鬼城</text>
+
+  <!-- 独山子 -->
+  <circle cx="520" cy="430" r="6" fill="#2980b9"/>
+  <text x="430" y="425" font-size="11">独山子大峡谷</text>
+
+  <!-- 那拉提 -->
+  <circle cx="500" cy="510" r="7" fill="#27ae60"/>
+  <text x="510" y="510" font-size="13" font-weight="bold">那拉提 D7</text>
+  <text x="510" y="525" font-size="10" fill="#555">巩乃斯草原</text>
+
+  <!-- 特克斯/昭苏 -->
+  <circle cx="400" cy="530" r="7" fill="#27ae60"/>
+  <text x="270" y="520" font-size="13" font-weight="bold">昭苏/特克斯 D8</text>
+  <text x="270" y="535" font-size="10" fill="#555">天马牧场+八卦城</text>
+
+  <!-- 伊宁 -->
+  <circle cx="370" cy="480" r="8" fill="#c0392b"/>
+  <text x="245" y="475" font-size="13" font-weight="bold">伊宁 D9-D10</text>
+  <text x="245" y="490" font-size="10" fill="#555">喀赞其老城/六星街</text>
+
+  <!-- 赛里木湖 -->
+  <circle cx="320" cy="430" r="6" fill="#3498db"/>
+  <text x="220" y="425" font-size="11">赛里木湖</text>
+
+  <!-- 喀什 -->
+  <circle cx="320" cy="700" r="10" fill="#c0392b"/>
+  <text x="335" y="700" font-size="15" font-weight="bold">喀什 D11-D13</text>
+  <text x="335" y="717" font-size="11" fill="#555">古城+艾提尕尔+周日巴扎</text>
+
+  <!-- 塔县 -->
+  <circle cx="240" cy="780" r="8" fill="#8e44ad"/>
+  <text x="100" y="775" font-size="13" font-weight="bold">塔县 D13-D14</text>
+  <text x="100" y="790" font-size="10" fill="#555">塔吉克族民宿</text>
+
+  <!-- 红其拉甫 -->
+  <circle cx="200" cy="830" r="6" fill="#8e44ad"/>
+  <text x="60" y="833" font-size="11">红其拉甫(4700m)</text>
+
+  <!-- 慕士塔格 -->
+  <text x="180" y="770" font-size="14">▲</text>
+  <text x="135" y="760" font-size="10" fill="#666">慕士塔格峰</text>
+
+  <!-- 喀拉库勒湖 -->
+  <circle cx="260" cy="755" r="5" fill="#3498db"/>
+  <text x="195" y="755" font-size="10">喀拉库勒湖</text>
+
+  <!-- 成都 (出发点，画在地图外) -->
+  <circle cx="1080" cy="820" r="10" fill="#16a085"/>
+  <text x="1010" y="845" font-size="14" font-weight="bold" fill="#16a085">成都(出发)</text>
+
+  <!-- Routes -->
+  <!-- 成都→乌市 飞机 -->
+  <path d="M 1080,820 Q 900,650 700,500" fill="none" stroke="#16a085" stroke-width="2" stroke-dasharray="10,5" marker-end="url(#arrow)"/>
+  <text x="930" y="700" font-size="11" fill="#16a085">✈ 3.5h</text>
+
+  <!-- 乌市→富蕴 -->
+  <path d="M 700,500 L 880,280" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <!-- 富蕴→可可托海 -->
+  <path d="M 880,280 L 920,240" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <!-- 可可托海→白哈巴 -->
+  <path d="M 920,240 Q 850,180 760,200" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <!-- 白哈巴→布尔津→克拉玛依 -->
+  <path d="M 760,200 L 700,240 L 560,350" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <!-- 克拉玛依→独山子→那拉提 -->
+  <path d="M 560,350 L 520,430 L 500,510" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="450" y="450" font-size="11" fill="#d35400" font-style="italic">独库公路</text>
+
+  <!-- 那拉提→昭苏 -->
+  <path d="M 500,510 L 400,530" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <!-- 昭苏→伊宁 -->
+  <path d="M 400,530 L 370,480" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <!-- 伊宁→赛里木湖往返 -->
+  <path d="M 370,480 L 320,430" stroke="#d35400" stroke-width="2" fill="none" stroke-dasharray="4,3"/>
+  <!-- 伊宁→喀什 飞机 -->
+  <path d="M 370,480 Q 340,580 320,700" stroke="#16a085" stroke-width="2" fill="none" stroke-dasharray="10,5" marker-end="url(#arrow)"/>
+  <text x="290" y="600" font-size="11" fill="#16a085">✈ 2h</text>
+
+  <!-- 喀什→塔县 -->
+  <path d="M 320,700 L 240,780" stroke="#d35400" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="240" y="745" font-size="11" fill="#d35400">中巴公路</text>
+  <!-- 塔县→红其拉甫 -->
+  <path d="M 240,780 L 200,830" stroke="#d35400" stroke-width="2" fill="none" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+  <!-- 返程 喀什→乌市→成都 -->
+  <path d="M 320,700 Q 500,600 700,500" stroke="#16a085" stroke-width="1.5" fill="none" stroke-dasharray="8,4" opacity="0.7"/>
+  <path d="M 700,500 Q 900,650 1080,820" stroke="#16a085" stroke-width="1.5" fill="none" stroke-dasharray="8,4" opacity="0.7"/>
+
+  <!-- Legend -->
+  <g transform="translate(40, 780)">
+    <rect width="280" height="100" fill="white" stroke="#ccc" rx="4" opacity="0.95"/>
+    <text x="10" y="20" font-size="13" font-weight="bold">图例</text>
+    <line x1="10" y1="35" x2="40" y2="35" stroke="#d35400" stroke-width="2.5"/>
+    <text x="48" y="39" font-size="11">陆路(包车)</text>
+    <line x1="130" y1="35" x2="160" y2="35" stroke="#16a085" stroke-width="2" stroke-dasharray="6,3"/>
+    <text x="168" y="39" font-size="11">飞机</text>
+    <circle cx="20" cy="55" r="6" fill="#c0392b"/><text x="32" y="59" font-size="11">主要城市/枢纽</text>
+    <circle cx="150" cy="55" r="5" fill="#27ae60"/><text x="162" y="59" font-size="11">草原牧区</text>
+    <circle cx="20" cy="75" r="5" fill="#8e44ad"/><text x="32" y="79" font-size="11">高原(海拔3000+)</text>
+    <circle cx="150" cy="75" r="5" fill="#3498db"/><text x="162" y="79" font-size="11">湖泊</text>
+  </g>
+
+  <!-- Compass -->
+  <g transform="translate(1100, 130)">
+    <circle r="28" fill="white" stroke="#333" stroke-width="1"/>
+    <polygon points="0,-22 6,0 0,22 -6,0" fill="#c0392b"/>
+    <text y="-32" font-size="12" text-anchor="middle" font-weight="bold">N</text>
+  </g>
+
+</svg>
