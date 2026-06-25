@@ -19,3 +19,9 @@ if [ ! -d "$SKILLS_DIR/using-superpowers" ]; then
   cp -r "$SP_CACHE"/skills/* "$SKILLS_DIR"/
   rm -rf "$SP_CACHE"
 fi
+
+# Install claude-mem (persistent-memory plugin) if npm/node available.
+# Best-effort: container may be ephemeral on web, but install itself is idempotent.
+if command -v npx >/dev/null 2>&1 && [ ! -d "$HOME/.claude-mem" ]; then
+  npx -y claude-mem install >/dev/null 2>&1 || true
+fi
